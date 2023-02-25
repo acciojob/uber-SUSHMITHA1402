@@ -17,7 +17,7 @@ public class TripBooking {
     private int distanceInKm;
 
     @Enumerated(value = EnumType.STRING)
-    private TripStatus tripStatus;
+    private TripStatus status;
 
     private int bill;
 
@@ -30,6 +30,14 @@ public class TripBooking {
     private Driver driver;
 
     public TripBooking() {
+    }
+
+    public TripStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TripStatus status) {
+        this.status = status;
     }
 
     public int getTripBookingId() {
@@ -62,14 +70,6 @@ public class TripBooking {
 
     public void setDistanceInKm(int distanceInKm) {
         this.distanceInKm = distanceInKm;
-    }
-
-    public TripStatus getTripStatus() {
-        return tripStatus;
-    }
-
-    public void setTripStatus(TripStatus tripStatus) {
-        this.tripStatus = tripStatus;
     }
 
     public int getBill() {
