@@ -57,7 +57,7 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 		}
 		if(tripDriver==null){
-			throw new Exception("No value present");
+			throw new Exception("none");
 		}
 		else{
 			tripBooking.setFromLocation(fromLocation);
