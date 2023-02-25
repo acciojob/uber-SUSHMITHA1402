@@ -85,9 +85,10 @@ public class CustomerServiceImpl implements CustomerService {
 		//Cancel the trip having given trip Id and update TripBooking attributes accordingly
 		  TripBooking bookedTrip = tripBookingRepository2.findById(tripId).get();
 		  bookedTrip.setStatus(TripStatus.CANCELED);
+		  bookedTrip.setBill(0);
 		  Driver driver = bookedTrip.getDriver();
 		  driver.getCab().setAvailable(true);
-		  driverRepository2.save(driver);
+		  tripBookingRepository2.save(bookedTrip);
 	}
 
 	@Override
@@ -99,6 +100,6 @@ public class CustomerServiceImpl implements CustomerService {
 		int price = driver.getCab().getPerKmRate()*bookedTrip.getDistanceInKm();
 		bookedTrip.setBill(price);
 		driver.getCab().setAvailable(true);
-		driverRepository2.save(driver);
+		tripBookingRepository2.save(bookedTrip);
 	}
 }
