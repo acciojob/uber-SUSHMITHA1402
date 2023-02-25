@@ -14,6 +14,7 @@ import com.driver.model.TripStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -30,30 +31,72 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public void register(Customer customer) {
 		//Save the customer in database
+		customerRepository2.save(customer);
 	}
 
 	@Override
 	public void deleteCustomer(Integer customerId) {
 		// Delete customer without using deleteById function
-
+		Customer customer = customerRepository2.findById(customerId).get();
+		customerRepository2.delete(customer);
 	}
 
 	@Override
 	public TripBooking bookTrip(int customerId, String fromLocation, String toLocation, int distanceInKm) throws Exception{
 		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE). If no driver is available, throw "No cab available!" exception
 		//Avoid using SQL query
+		TripBooking tripBooking = new TripBooking();
+		Customer customer = customerRepository2.findById(customerId).get();
+		List<Driver> drivers = driverRepository2.findAll();
+		// TreeSet<Driver>
+		Driver tripDriver = null;
+		for(Driver driver: drivers){
+			if(driver.getCab().isAvailable()==true){
+				tripDriver = driver;
+				break;
+			}
+		}
+		if(tripDriver==null){
+			throw new Exception("No cab available!");
+		}
+		else{
+			tripBooking.setFromLocation(fromLocation);
+			tripBooking.setToLocation(toLocation);
+			tripBooking.setDistanceInKm(distanceInKm);
+			tripBooking.setCustomer(customer);
+			tripBooking.setDriver(tripDriver);
+			tripDriver.getCab().setAvailable(false);
+			tripBooking.setTripStatus(TripStatus.CONFIRMED);
 
+			List<TripBooking> customerBookings = customer.getTripBookingList();
+			customerBookings.add(tripBooking);
+
+			List<TripBooking> driverBookings = tripDriver.getTripBookings();
+			driverBookings.add(tripBooking);
+
+			driverRepository2.save(tripDriver);
+			return tripBooking;
+		}
 	}
 
 	@Override
 	public void cancelTrip(Integer tripId){
 		//Cancel the trip having given trip Id and update TripBooking attributes accordingly
+		  TripBooking bookedTrip = tripBookingRepository2.findById(tripId).get();
+		  bookedTrip.setTripStatus(TripStatus.CANCELED);
+		  Driver driver = bookedTrip.getDriver();
+		  driver.getCab().setAvailable(true);
 
 	}
 
 	@Override
 	public void completeTrip(Integer tripId){
 		//Complete the trip having given trip Id and update TripBooking attributes accordingly
-
+		TripBooking bookedTrip = tripBookingRepository2.findById(tripId).get();
+		Driver driver = bookedTrip.getDriver();
+		bookedTrip.setTripStatus(TripStatus.COMPLETED);
+		int price = driver.getCab().getPerKmRate()*bookedTrip.getDistanceInKm();
+		bookedTrip.setBill(price);
+		driver.getCab().setAvailable(true);
 	}
 }
