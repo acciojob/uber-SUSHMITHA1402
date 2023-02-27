@@ -52,12 +52,13 @@ public class CustomerServiceImpl implements CustomerService {
 		Driver tripDriver = null;
 		for(Driver driver: drivers){
 			if(driver.getCab().getAvailable()==true){
-				tripDriver = driver;
-				break;
+				if( (tripDriver==null) || (tripDriver.getDriverId()>driver.getDriverId())){
+					tripDriver = driver;
+				}
 			}
 		}
-		if(tripDriver==null){
-			throw new Exception("none");
+		if(tripDriver == null){
+			throw new Exception("No cab available!");
 		}
 		else{
 			tripBooking.setFromLocation(fromLocation);
